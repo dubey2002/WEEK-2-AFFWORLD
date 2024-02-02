@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #e6e6e6;
+        margin: 0;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #ffffff;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+
+    .search-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    input {
+        width: 300px;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        margin-right: 10px;
+        font-size: 16px;
+    }
+
+    button {
+        padding: 10px 20px;
+        cursor: pointer;
+        background-color: #3498db;
+        color: #b0d01f;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    #moviesContainer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+    .movie-card {
+        width: 200px;
+        margin: 20px 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        padding: 10px;
+        text-align: center;
+        background-color: #fff;
+        border-radius: 8px;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .movie-card:hover {
+        transform: scale(1.05);
+    }
+
+    .movie-card img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .movie-details {
+        display: none;
+        text-align: left;
+    }
+
+    .movie-card:hover .movie-details {
+        display: block;
+    }
+</style>
+<title>Movie Database</title>
+</head>
+<body>
+<div class="container">
+    <h1>Movie Database</h1>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search for a movie...">
+        <button onclick="searchMovies()">Search</button>
+    </div>
+    <div id="moviesContainer"></div>
+</div>
+
+    <script>
+        async function searchMovies() {
+            const searchInput = document.getElementById('searchInput').value;
+
+            // Replace 'YOUR_API_KEY' with your actual API key
+            const apiKey = '*******';
+            const apiUrl = `https://www.omdbapi.com/?apikey=${apiKey}&s=${searchInput}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayMovies(data.Search);
+                } else {
+                    displayError('Failed to fetch movies');
+                }
+            } catch (error) {
+                displayError('An error occurred while fetching movies');
+            }
+        }
+
+        function displayMovies(movies) {
+            const moviesContainer = document.getElementById('moviesContainer');
+            moviesContainer.innerHTML = '';
+
+            movies.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.classList.add('movie-card');
+
+                const title = document.createElement('h3');
+                title.textContent = movie.Title;
+
+                const year = document.createElement('p');
+                year.textContent = `Year: ${movie.Year}`;
+
+                const poster = document.createElement('img');
+                poster.src = movie.Poster;
+                poster.alt = `${movie.Title} Poster`;
+
+                const detailsButton = document.createElement('button');
+                detailsButton.textContent = 'View Details';
+                detailsButton.onclick = () => getMovieDetails(movie.imdbID);
+
+                const movieDetails = document.createElement('div');
+                movieDetails.classList.add('movie-details');
+                movieDetails.innerHTML = `
+                    <p>Type: ${movie.Type}</p>
+                    <p>IMDB ID: ${movie.imdbID}</p>
+                `;
+
+                movieCard.appendChild(title);
+                movieCard.appendChild(year);
+                movieCard.appendChild(poster);
+                movieCard.appendChild(detailsButton);
+                movieCard.appendChild(movieDetails);
+
+                moviesContainer.appendChild(movieCard);
+            });
+        }
+
+        async function getMovieDetails(imdbID) {
+            const apiKey = '1d2d7f45';
+            const apiUrl = `https://www.omdbapi.com/?apikey=${apiKey}&i=${imdbID}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayMovieDetails(data);
+                } else {
+                    displayError('Failed to fetch movie details');
+                }
+            } catch (error) {
+                displayError('An error occurred while fetching movie details');
+            }
+        }
+
+        function displayMovieDetails(movie) {
+            alert(`Title: ${movie.Title}\nYear: ${movie.Year}\nGenre: ${movie.Genre}\nPlot: ${movie.Plot}`);
+        }
+
+        function displayError(errorMessage) {
+            const moviesContainer = document.getElementById('moviesContainer');
+            moviesContainer.innerHTML = `<p style="color: red;">${errorMessage}</p>`;
+        }
+    </script>
+</body>
+</html>
